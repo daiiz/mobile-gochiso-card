@@ -1,0 +1,20 @@
+﻿{
+  "name": "MobileGochisoCard",
+  "description": "Mobile Gochiso Card",
+  "manifest_version": 2,
+  "minimum_chrome_version": "23",
+  "version": "0.0.1",
+  "icons": {
+    "48": "icon48.png"
+  },
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+  "offline_enabled": true,
+  "permissions": [
+    "<all_urls>", 
+    "storage"
+  ]
+}

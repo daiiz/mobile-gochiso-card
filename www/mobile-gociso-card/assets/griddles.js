@@ -1,5 +1,5 @@
 ﻿ /**
- * Griddles v0.0.38dev
+ * Griddles
  * (c) 2013-2014 daiz. https://github.com/daiz713/griddles
  * License: MIT
  */
@@ -20,7 +20,6 @@ griddles.keepContentsNo_y = 0 - 1;
 griddles.max_stream_nums = 0;
 griddles.streamManager = [];
 griddles.auto_id_index = 0;
-
 
 /* カード１枚あたりの使用可能最大横幅を取得する */
 griddles.getFullWidth = function() {
@@ -58,7 +57,7 @@ griddles.gotoCardId = function(caid, ms) {
 }
 
 /* カードの互換性確保
- * griddles.layout.cardsに追加するときにコール */
+ * griddles.layout.cardsに追加するときにコール 
 griddles.card = function(a) {
    if(a.dataset == undefined) {
       a.dataset = [["auto","auto"]];
@@ -82,8 +81,11 @@ griddles.card = function(a) {
    if(a.init == undefined) {
       a.init = "";
    }
+   if(a.pushStyle == undefined) {
+      a.pushStyle = "append";
+   }
    return a;
-}
+}*/
 
 /* manifestの互換性 */
 griddles.manifest_compatibility = function() {
@@ -118,13 +120,59 @@ griddles.manifest_compatibility = function() {
    if(griddles.cca == undefined) {
       griddles.cca = false;
    }
+   if(griddles.layout.cards == undefined) {
+      griddles.layout.cards = [];
+   }
+   /* for older than v0.0.39 */
+   griddles.layout.card_width_px = 0;
+   griddles.layout.stream_margin_left_px = 0;
+   griddles.layout.stream_margin_right_px = 0;
+   griddles.layout.card_margin_bottom =  0;
+   griddles.layout.card_paddings =  [0, 0, 0, 0];
 }
+
+griddles.setCardBaseDesign = function() {
+   var wobj = griddles.layout.window;
+   if(window.innerHeight > window.innerWidth) {
+     // 縦幅 > 横幅 （縦向き）
+     var wobj_p = wobj.portrait;
+     griddles.layout.card_width_px = wobj_p.card_width_px;
+     griddles.layout.stream_margin_left_px = wobj_p.stream_margin_left_px;
+     griddles.layout.stream_margin_right_px = wobj_p.stream_margin_right_px;
+     griddles.layout.card_margin_bottom = wobj_p.card_margin_bottom;
+     griddles.layout.card_paddings = wobj_p.card_paddings;
+     griddles.layout.card_border_radius = wobj_p.card_border_radius;
+   }else {
+     // 縦幅 < 横幅　（横向き）
+     var wobj_l = wobj.landscape;
+     griddles.layout.card_width_px = wobj_l.card_width_px;
+     griddles.layout.stream_margin_left_px = wobj_l.stream_margin_left_px;
+     griddles.layout.stream_margin_right_px = wobj_l.stream_margin_right_px;
+     griddles.layout.card_margin_bottom = wobj_l.card_margin_bottom;
+     griddles.layout.card_paddings = wobj_l.card_paddings;
+     griddles.layout.card_border_radius = wobj_l.card_border_radius;
+   }
+   
+}
+
+griddles.update = function() {
+    var n = document.getElementsByClassName("Stream").length;
+    if(n > 0 && griddles.layout.load_limit == false) {
+       //if(griddles.keppWorkingFlag == 0) {
+          griddles.renderCardsAuto(n);
+       //}else {
+          //console.log("Sorry, Please Try Again.");
+       //}
+    }
+}
+
 
 griddles.load = function() {
     /* 初期化 */
     d.getElementsByTagName("body")[0].style.backgroundColor = griddles.layout.background_color;
     d.getElementById("page_icon").src = griddles.layout.page_icon;
     d.getElementById("app_bar").style.backgroundColor = griddles.layout.page_bar_bg_color;
+    document.getElementById("select_menu").innerHTML = griddles.layout.page_title;
     d.getElementById("select_menu").style.backgroundColor = griddles.layout.page_bar_bg_color;
     //d.getElementById("select_menu").style.background = "linear-gradient("+griddles.layout.page_bar_bg_color+","+griddles.layout.page_bar_bg_color+");";
     d.getElementById("select_menu").style.color = griddles.layout.page_bar_color;
@@ -145,6 +193,8 @@ griddles.load = function() {
     var ww = window.innerWidth;
     if (ww != griddles.pre_width || griddles.render == true) {
         console.log("resized!");
+        griddles.hideLeftBottomBtn();
+        griddles.setCardBaseDesign();
         griddles.keepContentsNo_y = 0 - 1;
         griddles.keepShowLength = 0;
         griddles.keppWorkingFlag = 0;
@@ -317,10 +367,24 @@ griddles.appearContent = function(card_id, v, b, w, hg, tit, type, vv, id, dsr, 
     if(prefix_userText != -1) {
        strcolor = "color: " + (cards[y]).color + "!important; ";
     }
-    content = '<div class="Card ' + cardhidden + '" ' + card_id + 'style="display:block; ' + bgColorStyle + v + 'margin-bottom:' + b + 'px; width:' + w + 'px;' + hg + tit + '">' + 
+    /* カードの面取り */
+    var crs = griddles.layout.card_border_radius;
+    var crss = "";
+    for(var cs = 0; cs < 4; cs++) {
+       crss = crss + " " + crs[cs] + "px";       
+    }
+    var card_radius = "border-radius:" + crss + "!important;";
+    
+    content = '<div class="Card ' + cardhidden + '" ' + card_id + 'style="display:block; ' + card_radius + bgColorStyle + v + 'margin-bottom:' + b + 'px; width:' + w + 'px;' + hg + tit + '">' + 
     '<div style="'+ strcolor + resvh +'position:relative; z-index:11;" class="' + type + '" ' + vv + tit + id + dsr + '>' + init + '</div>' + 
     '</div>';
-    $(d.getElementById("stream_" + intMinStream)).append(content);
+    
+    if(cards[y].pushStyle == "prepend") {
+       $(d.getElementById("stream_" + intMinStream)).prepend(content);
+    }else {
+       $(d.getElementById("stream_" + intMinStream)).append(content);
+    }
+    
     lg = griddles.lg;
     if (type == "default-img" || type == "default-caption-img") {
         griddles.showImages(griddles.imageIndexR);
@@ -367,9 +431,12 @@ griddles.showImages = function(r) {
         targetImg.onload = function() { // Operaでは動作しない（理由？）
             var imgid = "#" + target[0];
             if(navigator.userAgent.indexOf('Android') > 0) {
-                 d.getElementById(target[0]).style.display = "block";
-            }else {
                  $(imgid).slideDown();
+                 //d.getElementById(target[0]).style.display = "block";
+            }else {
+                 $(imgid).slideDown(); //fadeIn
+                 //d.getElementById(target[0]).style.display = "block";
+                 //d.getElementById(target[0]).className = "ImgShow";
             }
         }
         targetImg.onerror = function() {
@@ -667,7 +734,13 @@ window.addEventListener("click", function(e) {
        }else {
           if(chrome.app.window != undefined) {
              // chrome app
-             chrome.app.window.create("public/"+e.target.dataset.griddlesLink);
+             if(griddles.cashell == true) {
+                // use a chrome app shell window
+                chrome.app.window.create(e.target.dataset.griddlesLink); //"public/"+
+             }else if(griddles.cashell == false) {
+                // 通常のウェブページ扱い
+                window.open(e.target.dataset.griddlesLink);
+             }
           }else if(chrome.app.window == undefined){
              // 通常のウェブページ扱い
              window.open(e.target.dataset.griddlesLink);
@@ -691,6 +764,20 @@ griddles.openBrowserTab = function(url) {
 }
 /* ^o^ */
 
+
+griddles.showLeftBottomBtn = function() {
+   var h = griddles.getWindowHeight_value();
+   var tgt = document.getElementById("plusbtn");
+   tgt.innerHTML = "新しいカードを表示する";
+   tgt.style.top = (h - 70) + "px";
+   $("#plusbtn").fadeIn();
+}
+
+griddles.hideLeftBottomBtn = function() {
+   $("#plusbtn").fadeOut();
+}
+
+
 $(window).on("scroll", function() {
     var sh = $(document).height();
     var sp = $(window).height() + $(window).scrollTop();
@@ -709,13 +796,15 @@ $(window).on("scroll", function() {
                griddles.keppWorkingFlag = 0;
                console.info(":: RE:: 新しく読み込みます。");
                griddles.renderCardsAuto(griddles.max_stream_nums);
-               // 少しだけscrollbarをアップさせる
             }else {
                // console.info(":: RE:: false");
             }
         }
     }
 });
+
+
+
 
 
 

@@ -1,24 +1,27 @@
 ﻿var myApp = myApp || {};
 
 myApp.load = function(e) {
- myApp.settingSelectBox(["ごちそう", "インポート", "削除", "拡張機能を入手"]);
  chrome.storage.local.get('gochisoCode', function(e) {
     if(e.gochisoCode == undefined) {
         chrome.storage.local.set({'gochisoCode':[]}, function() {
-             myApp.g();
+             myApp.pleaseWait();
         });
     }else {
-        myApp.g();
+       myApp.pleaseWait();
     }
  });
  
 }
 
+myApp.pleaseWait = function() {
+    window.setTimeout(myApp.g, 1000);
+}
+
 myApp.changedSelectBox = function(e) {
-   var val = e.target.value;
+   var val = e;
    switch (val) {
       case "インポート" : myApp.importing();break;
-      case "ごちそう" : myApp.g();break;
+      case "ごちそうカード" : myApp.g();break;
       case "削除" : myApp.deleting();break;
       case "拡張機能を入手": myApp.goWebStore();break;
    }
@@ -48,16 +51,6 @@ myApp.g = function() {
    });
 }
 
-
-myApp.settingSelectBox = function(options) {
-    var optionTags = "";
-    for(var i = 0; i < options.length; i++) {
-       var opt = options[i];
-       optionTags = optionTags + '<option value="'+ opt +'">'+ opt +'</option>';
-    }
-    document.getElementById("select_menu").innerHTML = optionTags;
-    document.getElementById("select_menu").addEventListener("change", myApp.changedSelectBox, false);
-}
 
 myApp.renderingCards = function(cards) {
    griddles.layout.cards = cards;
@@ -93,6 +86,7 @@ myApp.visitPage = function(j) {
   }
 }
 
+document.getElementById("base_bar_text").innerHTML = griddles.layout.menu_items[0];
 window.addEventListener("load", myApp.load, false);
 window.addEventListener("click", function(e) {
    if(e.target.id == "reg_btn") {
