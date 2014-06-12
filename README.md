@@ -7,4 +7,4 @@ Google Chrome で [chrome://extensions/](chrome://extensions/) にアクセス�
 このリポジトリの`www`フォルダを選択する。
 
 ### Mobile Chrome Apps として実行する場合 
-このリポジトリの`www`フォルダの中身をそのまま、mobile chrome apps (cca) パッケージの`www`フォルダ内にコピーすると良い。
+このリポジトリの`www`フォルダの中身をそのまま、mobile chrome apps (cca) パッケージの`www`フォルダ内にコピーする。
