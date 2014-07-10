@@ -1,5 +1,6 @@
 ﻿GriddlesJS
 https://github.com/daiz713/griddles
 
-Version 0.1.103
-chromeyellow
+Version based on 0.1.103
+2014-07-02
+

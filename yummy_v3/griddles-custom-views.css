@@ -1,0 +1,42 @@
+.AppBar {
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
+	/* page_bar_bg_color */
+	background-color: #312319!important;
+}
+
+.BaseBar {
+	background-color: #FFF;
+	box-shadow: 0px 1px 1px #ccc;
+	color: #000000;
+	text-align: left;
+}
+
+#base_bar_text {
+	margin-left: 25px;
+}
+.open_text {
+	/* page_bar_color */
+	color: #000000;
+    font-weight: normal;
+    font-size: 15px!important;
+}
+
+#sideLogo {
+	/* side_nav_color */
+	background-color: #ffffff;
+}
+
+#select_menu {
+    /* nav-title */
+    color: #000;
+}
+
+.hamburger {
+	/* hamburger_color */
+	background-color: #D47F05;
+	/*background-color: #f1f1f1;*/
+	background-color: #BE7409;
+	background-color: #854A0E;
+	//background-color: #84440D;
+	background-color: #794514;
+}

@@ -1,6 +1,25 @@
 ﻿var myApp = myApp || {};
 
+myApp.photo_public_key = "ごちそう";
+myApp.photo_data = [];
+myApp.active_menu = [myApp.photo_public_key];
+
+myApp.firstload = function() {
+  chrome.storage.local.get('gochisoIndexs', function(e) {
+     if(e.gochisoIndexs == undefined) {
+        chrome.storage.local.set({'gochisoIndexs':[]}, function() {
+             myApp.load();
+        });
+     }else {
+        document.getElementById("base_bar_text").innerHTML = myApp.photo_public_key;
+        griddles.layout.menu_items = e.gochisoIndexs;
+        myApp.load();
+     }
+  });
+}
+
 myApp.load = function(e) {
+ // 写真読み込み
  chrome.storage.local.get('gochisoCode', function(e) {
     if(e.gochisoCode == undefined) {
         chrome.storage.local.set({'gochisoCode':[]}, function() {
@@ -19,11 +38,18 @@ myApp.pleaseWait = function() {
 
 myApp.changedSelectBox = function(e) {
    var val = e;
+   myApp.g(val);
+}
+
+myApp.navOnClick = function(j) {
+   var val = j.value;
    switch (val) {
-      case "インポート" : myApp.importing();break;
-      case "ごちそうカード" : myApp.g();break;
-      case "削除" : myApp.deleting();break;
-      case "拡張機能を入手": myApp.goWebStore();break;
+      case "importing" : myApp.importing();break;
+      case "removing" : myApp.deleting();break;
+      case "getting": myApp.goWebStore();break;
+      case "yummy": document.getElementById("base_bar_text").innerHTML = myApp.photo_public_key; 
+           myApp.g();
+           break;
    }
 }
 
@@ -34,8 +60,12 @@ myApp.cleanStream = function(){
     }
 }
 
-
-myApp.g = function() {
+// img::id: C+i ---- dataset.key---
+// card:id: card_+(i-1)
+myApp.g = function(q) {
+   if(q == undefined || q == '') {
+      q = myApp.photo_public_key;
+   }
    chrome.storage.local.get('gochisoCode', function(s) {
       console.log(s.gochisoCode.length);
       if(s.gochisoCode.length != 0) {
@@ -43,8 +73,13 @@ myApp.g = function() {
            var arr = arr || [];
                for(var u = 1; u < aj.length; u++) {
                    var page = aj[u].page.replace(/\//gi, "__SLASH__");
+                   var keys = aj[u].tags.ys.toString();
                    console.log(page);
-                   arr.push(griddles.card({"dataset": [["url", page]], "id": "C"+u, "type": "default-img", "init": aj[u].web, "card": "#fff"}));
+                   var regQ = new RegExp(q, "gi");
+                   var isQ = (keys.search(regQ) == -1) ? 0 : 1;
+                   if(isQ == 1) {
+                       arr.push(griddles.card({"dataset": [["url", page], ["key", keys]], "id": "C"+u, "type": "default-img", "init": aj[u].web, "card": false/*false"#fff"*/}));
+                   }
                }
            myApp.renderingCards(arr); 
       }
@@ -73,7 +108,6 @@ myApp.deleting = function() {
 
 myApp.goWebStore = function() {
     var url = "https://chrome.google.com/webstore/detail/%E3%81%94%E3%81%A1%E3%81%9D%E3%81%86%E3%82%AB%E3%83%BC%E3%83%89/kikhdipiobbjgdlcpdgbhhfljpoblcjg";
-    //myApp.settingSelectBox(["ごちそう", "インポート", "削除", "拡張機能を入手"]);
     griddles.openBrowserTab(url);
 }
 
@@ -87,14 +121,45 @@ myApp.visitPage = function(j) {
 }
 
 document.getElementById("base_bar_text").innerHTML = griddles.layout.menu_items[0];
-window.addEventListener("load", myApp.load, false);
+
+window.addEventListener("load", myApp.firstload, false);
+
 window.addEventListener("click", function(e) {
    if(e.target.id == "reg_btn") {
        var gochisoCode = document.getElementById("share_code").value;
        if(gochisoCode != "" && gochisoCode != null) {
-           chrome.storage.local.set({'gochisoCode': JSON.parse(gochisoCode)}, function() {
-               myApp.g();
+           // ^.^
+           var imported_indexs = [myApp.photo_public_key];
+           var gochisoCode = JSON.parse(gochisoCode);
+           var imported_indexs_str = "/"+ myApp.photo_public_key +"/";
+           for(var i = 1; i < gochisoCode.length; i++) {
+              var data_json = gochisoCode[i];
+              var idxs = data_json.tags.ys;
+              for(j = 0; j < idxs.length; j++) {
+                var idx = idxs[j];
+                var q_idx = new RegExp(idx, "gi");
+                var isReg = (imported_indexs_str.search(q_idx) == -1) ? 0 : 1;
+                if(isReg == 0) {
+                    // 新規登録必要
+                    imported_indexs.push(idx);
+                    imported_indexs_str = imported_indexs_str + idx + "/";
+                }else {
+                    // 登録済み
+                }
+              }
+           }
+           //console.log(imported_indexs); /*^o^*/
+           //console.log(imported_indexs_str); /*^o^*/
+           chrome.storage.local.set({'gochisoIndexs': imported_indexs}, function() {
+               document.getElementById("base_bar_text").innerHTML = myApp.photo_public_key;
+               griddles.layout.menu_items = imported_indexs;
+               
+               chrome.storage.local.set({'gochisoCode': gochisoCode}, function() {
+                   myApp.g();
+               });
+               
            });
+           // ^.^
        }
    }else if(e.target.id == "rmv_btn") {
       chrome.storage.local.remove('gochisoCode', function() {
@@ -103,3 +168,6 @@ window.addEventListener("click", function(e) {
    }
 }, false);
 
+
+// 新機能を追加してみる
+// 写真の上にマウスオーバーするとタグが表示される機能
