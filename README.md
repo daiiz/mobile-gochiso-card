@@ -1,4 +1,4 @@
-mobile-gochiso-card
+Yummy
 ===================
  
 ![](https://raw.githubusercontent.com/daiz713/mobile-gochiso-card/master/assets/icons/7272.png) 
