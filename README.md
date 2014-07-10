@@ -1,10 +1,9 @@
 mobile-gochiso-card
 ===================
  
-![](https://raw.githubusercontent.com/daiz713/mobile-gochiso-card/master/www/assets/icons/7272.png) 
-### Chrome Apps として実行する場合
-Google Chrome で [chrome://extensions/](chrome://extensions/) にアクセスして、ページ上部の「パッケージ化されていない拡張機能を読み込む...」ボタンをクリックし、
-このリポジトリの`www/mobile-gociso-card`フォルダを選択する。
-
-### Mobile Chrome Apps として実行する場合 
-このリポジトリの`www`フォルダの中身をそのまま、mobile chrome apps (cca) パッケージの`www`フォルダ内にコピーする。
+![](https://raw.githubusercontent.com/daiz713/mobile-gochiso-card/master/assets/icons/7272.png) 
+### 実行方法
+1. このリポジトリをcloneする
+2. Chrome Dev Editor を起動する
+3. メニューから「Open Folder...」をクリックする
+4. フォルダ`yummy_v3`を選択して開く
